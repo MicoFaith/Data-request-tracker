@@ -1,4 +1,4 @@
-"""Supervise web and email processes when one host must own the SQLite disk."""
+"""Supervise web and email processes inside one hosted service."""
 
 import os
 import signal

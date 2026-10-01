@@ -1,5 +1,7 @@
 # Dataset Request Desk
 
+[![Tests](https://github.com/MicoFaith/Data-request-tracker/actions/workflows/test.yml/badge.svg)](https://github.com/MicoFaith/Data-request-tracker/actions/workflows/test.yml)
+
 A Python internal platform for robotics dataset requests, episode assignment and client delivery review. Built for the supplied Neotix technical test. The backend uses Django 5.2 with PostgreSQL for free public hosting or SQLite for the local demo, and committed Django migrations. The primary UI uses React, React Router, TanStack Query and Motion, built with Vite. It preserves the original teal, mint and dark-header palette. Django templates remain a functional fallback without JavaScript; HTMX loads only when the React build is absent.
 
 This guide covers setup, demo accounts, everyday workflows, testing, implementation decisions and public-demo deployment.
@@ -154,11 +156,11 @@ Local SQLite uses `IMMEDIATE` transactions to acquire the writer lock before dom
 
 ## Verification, scope and source
 
-The test suite includes backend and React component/API checks. Fresh-database startup, the real HTTP delivery/rework workflow and served static assets have also been verified. Notification email tests use an in-memory mail backend; real provider delivery still needs configured credentials and an approved test mailbox.
+Verification passed locally and in GitHub Actions: 110 backend tests on SQLite, the same 110 on PostgreSQL, 29 React component/API tests, the frontend production build and migration consistency. Fresh-database startup, the real HTTP delivery/rework and notification flows and served static assets have also been verified. Notification email tests use an in-memory backend and a mocked HTTPS transport; real provider delivery still needs configured credentials and an approved test mailbox.
 
 The backend automated suite includes cross-client/role denials, active-session role changes, CSRF, valid/invalid transitions, audit rollback, N−1/N/N+1 delivery, unique/concurrent assignments, messy import/idempotency, SQL median/boundaries, pagination, logging/outage behavior, notification scoping, opt-in email, retry/lease recovery and client/operator templates. Test password hashing is intentionally fast inside test classes only; application seeds use Django's normal password hasher.
 
-The deployment stretch is selected: public HTTPS configuration is prepared, but a live hosting URL is still pending. GitHub Actions CI is configured; a remote run awaits repository setup. Full visual browser QA remains outstanding. Seed CSV and account data are included in `seed/`.
+The deployment stretch is selected: free public HTTPS configuration is prepared, but a live hosting URL is still pending. GitHub Actions CI runs on pushes and pull requests. Full visual browser QA remains outstanding. Seed CSV and account data are included in `seed/`.
 
 AI tooling disclosure, as requested by the brief: Codex/ChatGPT helped implement the application, tests and documentation, and ran automated and HTTP checks. The published repository starts from a consolidated snapshot; its commit timestamps do not represent active development hours.
 

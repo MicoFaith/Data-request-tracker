@@ -1,4 +1,4 @@
-"""Transactional activity inbox and a durable, opt-in SMTP outbox."""
+"""Transactional activity inbox and a durable, opt-in email outbox."""
 
 from datetime import timedelta
 import logging
