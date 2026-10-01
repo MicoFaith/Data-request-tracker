@@ -1,0 +1,12 @@
+name: Test application
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run complete Docker checks
+        run: python3 scripts/test_all.py

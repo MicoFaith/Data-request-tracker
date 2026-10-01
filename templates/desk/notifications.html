@@ -1,0 +1,12 @@
+{% extends "desk/base.html" %}
+{% block title %}Notifications · Dataset Request Desk{% endblock %}
+{% block content %}
+    <h1>Notifications</h1>
+    <p>Your most recent activity updates. Enable JavaScript for live updates, read controls and email preferences.</p>
+    {% for item in notifications %}
+        <article class="card">
+            <h2>{{ item.title }}</h2>
+            <p>{{ item.message }}</p>
+            <time>{{ item.created_at }}</time></article>
+{% empty %}<p>No activity yet. Updates will appear here when your team starts working.</p>{% endfor %}
+{% endblock %}

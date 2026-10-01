@@ -1,0 +1,62 @@
+{% extends "desk/base.html" %}
+{% block title %}Sign in | Dataset Request Desk{% endblock %}
+{% block content %}
+    <div class="login-grid">
+        <section class="login-story">
+            <span class="eyebrow">Built for the work behind the data</span>
+            <h1>
+                Great datasets.
+                <br>
+                One shared workspace.
+            </h1>
+            <p class="lead">Request recordings, coordinate fulfilment and review every delivery with confidence.</p>
+            <div class="journey" aria-label="Dataset workflow"><span>Request</span><b aria-hidden="true">→</b><span>Prepare</span><b aria-hidden="true">→</b><span>Review</span></div>
+            <div class="login-rule">
+                <strong>For clients</strong>
+                <p>Ask for the recordings you need. Follow every step.</p>
+            </div>
+            <div class="login-rule">
+                <strong>For operations</strong>
+                <p>Find eligible episodes and bring each request to completion.</p>
+            </div>
+            <div class="login-rule">
+                <strong>For administrators</strong>
+                <p>Keep the team connected with the right access.</p>
+            </div>
+        </section>
+        <section class="card login-card">
+            <span class="eyebrow">Welcome back</span>
+            <h2>Sign in to your workspace</h2>
+            <p>Use the account provided by your administrator.</p>
+            {% if error %}<div class="notice error" id="login-error" role="alert">{{ error }} Check your details or ask your administrator to confirm your account is active.</div>{% endif %}
+            <form method="post" hx-boost="false" data-busy-form>
+                {% csrf_token %}
+                <label for="email">Email address</label><input id="email"
+       name="email"
+       type="email"
+       value="{{ email }}"
+       required
+       maxlength="254"
+       autocomplete="username"
+       placeholder="you@company.com"
+       {% if error %}aria-describedby="login-error"{% endif %}>
+                <label for="password">Password</label>
+                <div class="password-wrap">
+                    <input id="password"
+                           name="password"
+                           type="password"
+                           required
+                           maxlength="128"
+                           autocomplete="current-password"><button class="password-toggle"
+        type="button"
+        data-password-toggle="password"
+        aria-controls="password"
+        aria-pressed="false"
+        hidden>Show</button>
+                </div>
+                <button class="primary full">Sign in</button>
+                <p class="login-help">Need access? Contact your workspace administrator.</p>
+            </form>
+        </section>
+    </div>
+{% endblock %}

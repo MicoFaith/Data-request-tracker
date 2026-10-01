@@ -1,0 +1,10 @@
+.venv
+frontend/node_modules
+static/react
+.git
+data
+staticfiles
+.env
+.env.public
+**/__pycache__
+*.sqlite3*

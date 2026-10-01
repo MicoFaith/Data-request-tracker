@@ -1,0 +1,133 @@
+{% extends "desk/base.html" %}
+{% block title %}Episodes | Dataset Request Desk{% endblock %}
+{% block content %}
+    <div class="heading">
+        <div>
+            <span class="eyebrow">Operations workspace / inventory</span>
+            <h1>Episodes</h1>
+            <p>Imported metadata · Good and usable recordings are eligible for assignment.</p>
+        </div>
+    </div>
+    <section class="dashboard-stats" aria-label="Inventory overview">
+        <a class="metric-card" href="{% url 'episodes_page' %}"><span class="metric-label">All recordings <span aria-hidden="true">↗</span></span><strong>{{ inventory.total }}</strong><small>Imported episode metadata</small></a>
+        <div class="metric-card accent"><span class="metric-label">Ready to assign</span><strong>{{ inventory.eligible }}</strong><small>Unassigned good or usable episodes</small></div>
+        <a class="metric-card" href="?available=false"><span class="metric-label">Assigned <span aria-hidden="true">↗</span></span><strong>{{ inventory.assigned }}</strong><small>Reserved for client requests</small></a>
+    </section>
+    <section class="card" id="import">
+        <h2>Import a recording export</h2>
+        <p>UTF-8 CSV with the supplied seven-column header. Maximum 10 MiB. Repeated IDs are skipped, never overwritten.</p>
+        <form class="upload-form"
+              method="post"
+              enctype="multipart/form-data"
+              hx-boost="false">
+            {% csrf_token %}
+            <input name="file"
+                   aria-label="Episodes CSV"
+                   type="file"
+                   accept=".csv,text/csv"
+                   required>
+            <button class="primary">Import CSV</button>
+        </form>
+        {% if error %}
+            <div class="notice error" role="alert">{{ error }}</div>
+        {% endif %}
+        {% if report %}
+            <div class="import-summary {% if not report.imported %}neutral{% endif %}"
+                 role="status">
+                <strong>{{ report.imported }} imported</strong>
+                <span>{{ report.skipped }} skipped</span>
+                <span>{{ report.total_rows }} rows read</span>
+            </div>
+            {% if not report.imported %}<p>No new episodes were added. Existing IDs are never overwritten; review the skipped reasons below.</p>{% endif %}
+            <ul>
+                {% for reason,count in report.reasons.items %}
+                    <li>{{ reason }}: {{ count }}</li>
+                {% endfor %}
+            </ul>
+            <details>
+                <summary>Skipped row details{% if report.unlisted_skips %} (first 200; {{ report.unlisted_skips }} more counted above){% endif %}
+                </summary>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>CSV line</th>
+                                <th>Episode ID</th>
+                                <th>Reason</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for row in report.rows %}
+                                <tr>
+                                    <td>{{ row.line }}</td>
+                                    <td>{{ row.episode_id|default:'—' }}</td>
+                                    <td>{{ row.reason }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </details>
+        {% endif %}
+    </section>
+    <div class="section-head"><div><h2>Recording inventory</h2><p>{{ meta.total }} matching episode{{ meta.total|pluralize }}</p></div><a href="{% url 'episodes_page' %}" class="text-link">Clear filters</a></div>
+    {% include "desk/filter_errors.html" %}
+    <form method="get" class="filters surface">
+        <label>
+            Task name<input name="task_name"
+       value="{{ task_name }}"
+       placeholder="Exact task name"
+       maxlength="160">
+        </label>
+        <label>
+            Quality<select name="quality">
+            <option value="">All quality</option>
+            <option value="good" {% if quality == 'good' %}selected{% endif %}>Good</option>
+            <option value="usable" {% if quality == 'usable' %}selected{% endif %}>Usable</option>
+            <option value="bad" {% if quality == 'bad' %}selected{% endif %}>Bad</option>
+            </select>
+        </label>
+        <label>
+            Availability<select name="available">
+            <option value="">All episodes</option>
+            <option value="true" {% if available == 'true' %}selected{% endif %}>Unassigned</option>
+            <option value="false" {% if available == 'false' %}selected{% endif %}>Assigned</option>
+            </select>
+        </label>
+        <button>Apply filters</button>
+    </form>
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Episode</th>
+                    <th>Task</th>
+                    <th>Robot</th>
+                    <th>Recorded · Kigali</th>
+                    <th>Duration</th>
+                    <th>Quality</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for ep in rows %}
+                    <tr>
+                        <td>{{ ep.pk }}</td>
+                        <td>{{ ep.task_name }}</td>
+                        <td>{{ ep.robot_id }}</td>
+                        <td>{{ ep.recorded_at|date:'d M Y H:i' }}</td>
+                        <td>{{ ep.duration_seconds }}s</td>
+                        <td>
+                            <span class="quality {{ ep.quality }}">{{ ep.quality }}</span>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="6"
+                            class="empty">No episodes match your filters. Try another task or clear the filters.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% include "desk/pagination.html" %}
+{% endblock %}

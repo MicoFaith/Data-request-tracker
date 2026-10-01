@@ -1,0 +1,3 @@
+{% if meta.total %}<nav class="pagination" aria-label="Pagination"><span>Page {{ meta.page }} · {{ meta.total }} record{{ meta.total|pluralize }}</span>{% if meta.page > 1 %}<a class="button"
+   href="?{{ page_query }}&amp;page={{ meta.page|add:'-1' }}">← Previous</a>{% endif %}{% if meta.has_next %}<a class="button"
+   href="?{{ page_query }}&amp;page={{ meta.page|add:'1' }}">Next →</a>{% endif %}</nav>{% endif %}

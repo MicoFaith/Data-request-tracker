@@ -1,0 +1,8 @@
+{% extends "desk/base.html" %}
+{% block content %}
+    <section class="card form-card">
+        <h1>We couldn’t complete that action</h1>
+        <div class="notice error" role="alert">{{ error }}</div>
+        <a class="button" href="{% url 'home' %}">Return to requests</a>
+    </section>
+{% endblock %}

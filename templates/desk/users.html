@@ -1,0 +1,67 @@
+{% extends "desk/base.html" %}
+{% block title %}Users & access | Dataset Request Desk{% endblock %}
+{% block content %}
+    <div class="heading">
+        <div>
+            <span class="eyebrow">Admin workspace / people</span>
+            <h1>Users &amp; access</h1>
+            <p>The right people. The right permissions. One shared workspace.</p>
+        </div>
+        <a class="button primary" href="#create-user">+ Create an account</a>
+    </div>
+    <section class="dashboard-stats" aria-label="Account overview">
+        <a class="metric-card" href="{% url 'users_page' %}"><span class="metric-label">All accounts <span aria-hidden="true">↗</span></span><strong>{{ user_stats.total }}</strong><small>Your workspace directory</small></a>
+        <a class="metric-card accent" href="?active=true"><span class="metric-label">Active accounts <span aria-hidden="true">↗</span></span><strong>{{ user_stats.active }}</strong><small>People with current access</small></a>
+        <a class="metric-card" href="?role=admin&amp;active=true"><span class="metric-label">Administrators <span aria-hidden="true">↗</span></span><strong>{{ user_stats.admins }}</strong><small>Active access managers</small></a>
+    </section>
+    <div class="detail-grid user-layout">
+        <section><div class="section-head"><div><h2>Accounts</h2><p>{{ meta.total }} result{{ meta.total|pluralize }}</p></div><a class="text-link" href="{% url 'users_page' %}">Clear filters</a></div>
+            {% include "desk/filter_errors.html" %}
+            <form class="filters surface" method="get"><label class="search-field">Search people<input name="q"
+       type="search"
+       maxlength="160"
+       value="{{ filter_form.q.value|default:'' }}"
+       placeholder="Name or email"></label><label>Role<select name="role"><option value="">All roles</option>{% for value,label in roles %}<option value="{{ value }}"
+        {% if filter_form.role.value == value %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></label><label>Access<select name="active"><option value="">All accounts</option><option value="true"
+        {% if filter_form.active.value == 'true' %}selected{% endif %}>Active</option><option value="false"
+        {% if filter_form.active.value == 'false' %}selected{% endif %}>Inactive</option></select></label><button>Find users</button></form>
+            <div class="card">
+                {% for item in rows %}
+                    <form method="post" class="user-row">
+                        {% csrf_token %}
+                        <input type="hidden" name="user_id" value="{{ item.pk }}">
+                        <label for="name-{{ item.pk }}">
+                            Full name<input id="name-{{ item.pk }}"
+       name="name"
+       value="{{ item.edit_name }}"
+       required
+       maxlength="120">
+                        </label>
+                        <label for="email-{{ item.pk }}">
+                            Email<input id="email-{{ item.pk }}"
+       name="email"
+       type="email"
+       value="{{ item.edit_email }}"
+       required
+       maxlength="150">
+                        </label>
+                        <p class="helptext">Changing this updates the sign-in email. The password stays the same.</p>
+                        <label for="organisation-{{ item.pk }}">
+                            Organisation<input id="organisation-{{ item.pk }}"
+       name="organisation"
+       value="{{ item.edit_organisation }}"
+       maxlength="120">
+                        </label>
+                        <div class="user-identity"><span class="avatar" aria-hidden="true">{{ item.display_name|first|upper }}</span><div><strong>{{ item.display_name }}{% if item.pk == user.pk %} <span class="tag">You</span>{% endif %}</strong><small>{{ item.email }}</small></div><span class="status {% if item.is_active %}accepted{% endif %}">{% if item.is_active %}Active{% else %}Inactive{% endif %}</span></div>
+                    {% if item.pk == user.pk %}<input type="hidden" name="role" value="admin"><input type="hidden" name="is_active" value="true"><p class="helptext"><button>Save profile</button>Your administrator access is protected. You cannot deactivate or change your own role.</p>
+{% else %}<div class="user-controls"><label for="role-{{ item.pk }}">Role<select id="role-{{ item.pk }}" name="role">{% for value,label in roles %}<option value="{{ value }}" {% if item.role == value %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></label><label class="checkbox-label"><input type="checkbox"
+       name="is_active"
+       value="true"
+       {% if item.is_active %}checked{% endif %}> Active</label><button aria-label="Save access for {{ item.email }}">Save</button></div><p class="helptext">Unchecking Active removes access on the user's next request.</p>{% endif %}
+</form>{% if item.pk != user.pk %}<details><summary>Delete {{ item.display_name }}</summary><p>Permanent deletion is available only for accounts without requests or audit history. Otherwise deactivate the account.</p><form method="post">{% csrf_token %}<input type="hidden" name="action" value="delete"><input type="hidden" name="user_id" value="{{ item.pk }}"><label for="delete-{{ item.pk }}">Type {{ item.email }} to confirm<input id="delete-{{ item.pk }}" name="confirm_email" type="email" required></label><button>Permanently delete account</button></form></details>{% endif %}{% empty %}<div class="empty"><h3>No accounts match</h3><p>Try a different name, role or access filter.</p><a class="button" href="{% url 'users_page' %}">Reset filters</a></div>{% endfor %}
+</div>
+{% include "desk/pagination.html" %}
+</section>
+<section class="card" id="create-user"><span class="eyebrow">Grow your team</span><h2>Create an account</h2><p>Clients request and review. Operators fulfil. Admins also manage access.</p><form method="post" action="{% url 'users_page' %}#create-user">{% csrf_token %}{% include "desk/form_fields.html" %}<button class="primary full">Create user</button></form><p class="helptext">No invitation email is sent. Share sign-in details securely. Passwords must be re-entered after a validation error.</p></section>
+</div>
+{% endblock %}

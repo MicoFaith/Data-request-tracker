@@ -1,0 +1,11 @@
+.venv/
+__pycache__/
+*.pyc
+.env
+.env.public
+*.sqlite3*
+data/
+staticfiles/
+.pytest_cache/
+frontend/node_modules/
+static/react/

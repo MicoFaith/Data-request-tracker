@@ -1,0 +1,42 @@
+{% extends "desk/base.html" %}
+{% block title %}Create request | Dataset Request Desk{% endblock %}
+{% block content %}
+    <a class="back" href="{% url 'home' %}#requests">← Back to requests</a>
+    <div class="heading">
+        <div>
+            <span class="eyebrow">Client workspace / new request</span>
+            <h1>What recordings do you need?</h1>
+            <p>A few details now. A clear path to delivery.</p>
+        </div>
+    </div>
+    <div class="form-layout">
+        <form method="post" class="card form-card" data-busy-form>
+            {% csrf_token %}<div class="section-head"><h2>Request details</h2><span class="tag">New request</span></div>
+            {% include "desk/form_fields.html" %}
+            <div class="form-actions"><button class="primary">Submit request</button><a class="button quiet"
+   href="{% url 'home' %}">Cancel</a></div>
+        </form>
+        <aside class="guide-card">
+            <span class="eyebrow">What happens next</span>
+            <h2>From request to ready</h2>
+            <ol class="steps">
+                <li>
+                    <strong>Tell us what you need</strong>
+                    <p>Choose a task, episode count and future deadline.</p>
+                </li>
+                <li>
+                    <strong>We prepare your recordings</strong>
+                    <p>Operations assigns matching good or usable episodes.</p>
+                </li>
+                <li>
+                    <strong>You make the final call</strong>
+                    <p>Review the delivery, then accept it or ask for rework.</p>
+                </li>
+            </ol>
+            <div class="tip">
+                <strong>A useful note goes a long way.</strong>
+                <p>Add any task preferences the team should keep in mind.</p>
+            </div>
+        </aside>
+    </div>
+{% endblock %}

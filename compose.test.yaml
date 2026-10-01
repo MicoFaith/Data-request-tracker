@@ -1,0 +1,24 @@
+# Isolated disposable PostgreSQL test stack; never points at the demo database.
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: desk
+      POSTGRES_PASSWORD: test-only
+      POSTGRES_DB: desk
+    tmpfs:
+      - /var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U desk -d desk"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+  tests:
+    build: .
+    command: ["python", "manage.py", "test", "--noinput"]
+    environment:
+      DATABASE_URL: postgresql://desk:test-only@postgres:5432/desk
+      NOTIFICATION_EMAIL_ENABLED: "0"
+    depends_on:
+      postgres:
+        condition: service_healthy

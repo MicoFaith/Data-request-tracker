@@ -1,0 +1,178 @@
+{% extends "desk/base.html" %}
+{% block title %}Request #{{ obj.pk }} | Dataset Request Desk{% endblock %}
+{% block content %}
+    <a class="back" href="{% url 'home' %}">Back to requests</a>
+    <div class="heading">
+        <div>
+            <span class="eyebrow">REQUEST #{{ obj.pk }}</span>
+            <h1>{{ obj.task_name }}</h1>
+            <p>{{ obj.client.display_name }} · Deadline {{ obj.deadline|date:'d M Y' }}</p>
+        </div>
+        <span class="status {{ obj.status }}">{{ obj.get_status_display }}</span>
+    </div>
+    <div class="next-action">
+        <span class="action-symbol" aria-hidden="true">→</span>
+        <div>
+            <span class="eyebrow">What happens next</span>
+            {% if obj.status == "accepted" %}<h2>Delivery accepted. All set.</h2><p>Your completed request and full history remain available here.</p>
+            {% elif obj.status == "delivered" %}<h2>{% if user.role == "client" %}Your delivery is ready to review{% else %}Waiting for the client's review{% endif %}</h2><p>{% if user.role == "client" %}Check the assigned recordings below. Accepting completes this request; reject it if more work is needed.{% else %}The client can accept the delivery or return it for rework.{% endif %}</p>
+            {% elif obj.status == "rejected" %}<h2>Ready for another pass</h2><p>{% if user.role == "client" %}The operations team can now start rework.{% else %}Start rework, adjust the assignments and deliver again.{% endif %}</p>
+            {% elif obj.status == "submitted" %}<h2>{% if user.role == "client" %}Your request is with operations{% else %}A new request is ready to start{% endif %}</h2><p>{% if user.role == "client" %}The team will prepare matching episodes for you.{% else %}Start fulfilment to choose episodes for this request.{% endif %}</p>
+{% else %}<h2>{% if remaining %}{{ remaining }} more episode{{ remaining|pluralize }} needed{% else %}The requested episode count is met{% endif %}</h2><p>{% if user.role == "client" %}Operations is preparing your delivery.{% else %}Choose eligible episodes below, then deliver when the set is ready.{% endif %}</p>{% endif %}
+{% if obj.deadline < today and obj.status != "accepted" %}<p class="overdue">This request is past its deadline.</p>{% endif %}
+    </div>
+    {% if user.role != "client" and obj.status == "in_progress" %}<a class="button"
+   href="#assignment-panel">Choose episodes</a>{% endif %}
+    </div>
+    <div class="detail-grid">
+        <section>
+            <div class="card">
+                <div class="section-head">
+                    <h2>Delivery progress</h2>
+                    <strong>{{ assigned|length }} / {{ obj.episodes_requested }}</strong>
+                </div>
+                <progress class="large-progress"
+                          value="{{ assigned|length }}"
+                          max="{{ obj.episodes_requested }}"
+                          aria-label="Assigned episodes out of requested episodes">{{ assigned|length }} / {{ obj.episodes_requested }}</progress>
+                <p>Assigned episodes / requested episodes</p>
+                {% if obj.notes %}
+                    <div class="request-notes">
+                        <h3>Client notes</h3>
+                        <p>{{ obj.notes|linebreaksbr }}</p>
+                    </div>
+                {% endif %}
+                <div class="actions">
+                    {% if user.role == "client" and obj.status == "delivered" %}
+                        <form method="post" action="{% url 'status_action' obj.pk %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="status" value="accepted">
+                            <button class="primary">Accept delivery</button>
+                        </form>
+                        <form method="post" action="{% url 'status_action' obj.pk %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="status" value="rejected">
+                            <button class="danger">Reject for rework</button>
+                        </form>
+                    {% elif user.role != "client" %}
+                        {% if obj.status == "submitted" or obj.status == "rejected" %}
+                            <form method="post" action="{% url 'status_action' obj.pk %}">
+                                {% csrf_token %}
+                                <input type="hidden" name="status" value="in_progress">
+                                <button class="primary">Start {% if obj.status == "rejected" %}rework{% else %}fulfilment{% endif %}</button>
+                            </form>
+                        {% elif obj.status == "in_progress" %}
+                            <form method="post" action="{% url 'status_action' obj.pk %}">
+                                {% csrf_token %}
+                                <input type="hidden" name="status" value="delivered">
+                                <button class="primary"
+                                        {% if assigned|length < obj.episodes_requested %}disabled{% endif %}>Deliver dataset</button>
+                            </form>
+                            {% if assigned|length < obj.episodes_requested %}
+                                <small>Assign enough episodes to unlock delivery.</small>
+                            {% endif %}
+                        {% endif %}
+                    {% endif %}
+                </div>
+            </div>
+            <div class="card">
+                <h2>Assigned episodes</h2>
+                {% for item in assigned %}
+                    <div class="episode-row">
+                        <div>
+                            <strong>{{ item.episode.pk }}</strong>
+                            <p>{{ item.episode.robot_id }} · {{ item.episode.duration_seconds }}s · {{ item.episode.quality }}</p>
+                        </div>
+                        {% if user.role != "client" and obj.status == "in_progress" %}
+                            <form method="post"
+                                  action="{% url 'assignment_action' obj.pk %}?{{ page_query }}">
+                                {% csrf_token %}
+                                <input type="hidden" name="episode_id" value="{{ item.episode.pk }}">
+                                <input type="hidden" name="remove" value="true">
+                                <button class="quiet">Release</button>
+                            </form>
+                        {% endif %}
+                    </div>
+                {% empty %}
+                    <p class="empty-inline">No episodes assigned yet.</p>
+                {% endfor %}
+            </div>
+        </section>
+        <aside class="card">
+            <h2>Status history</h2>
+            <ol class="timeline">
+                {% for event in history %}
+                    <li>
+                        <strong>{{ event.label }}</strong>
+                        <span>{{ event.actor.display_name }}</span>
+                        <small>{{ event.at|date:'d M Y, H:i:s' }} Kigali</small>
+                    </li>
+                {% endfor %}
+            </ol>
+        </aside>
+    </div>
+    {% if user.role != "client" and obj.status == "in_progress" %}
+        <section class="assignment-panel" id="assignment-panel">
+            <div class="heading">
+                <div>
+                    <h2>Choose episodes</h2>
+                    <p>Only matching good/usable episodes can be assigned. Each episode is exclusive to one request.</p>
+                </div>
+            </div>
+            {% include "desk/filter_errors.html" %}
+            <form method="get" class="filters surface" action="#assignment-panel">
+                <label>
+                    Task name<input name="task_name" value="{{ task_name }}" maxlength="160">
+                </label>
+                <label>
+                    Quality<select name="quality">
+                    <option value="">All quality</option>
+                    <option value="good" {% if quality == 'good' %}selected{% endif %}>Good</option>
+                    <option value="usable" {% if quality == 'usable' %}selected{% endif %}>Usable</option>
+                    <option value="bad" {% if quality == 'bad' %}selected{% endif %}>Bad</option>
+                    </select>
+                </label>
+                <button>Filter episodes</button>
+            </form>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Episode</th>
+                            <th>Task</th>
+                            <th>Robot</th>
+                            <th>Quality</th>
+                            <th><span class="sr-only">Action</span></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for ep in candidates %}
+                            <tr>
+                                <td>{{ ep.pk }}</td>
+                                <td>{{ ep.task_name }}</td>
+                                <td>{{ ep.robot_id }}</td>
+                                <td>
+                                    <span class="quality {{ ep.quality }}">{{ ep.quality }}</span>
+                                </td>
+                                <td>
+                                    <form method="post"
+                                          action="{% url 'assignment_action' obj.pk %}?{{ page_query }}">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="episode_id" value="{{ ep.pk }}">
+                                        <button aria-label="Assign episode {{ ep.pk }}"
+                                                {% if ep.quality == 'bad' or ep.task_name != obj.task_name %}disabled title="Only matching good or usable episodes can be assigned"{% endif %}>Assign</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="5" class="empty">No available episodes match these filters. Import more metadata or adjust the filter.</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% include "desk/pagination.html" %}
+        </section>
+    {% endif %}
+{% endblock %}

@@ -1,0 +1,74 @@
+{% extends "desk/base.html" %}
+{% block content %}
+    <section class="heading dashboard-heading">
+        <div>
+            <span class="eyebrow">{{ user.get_role_display }} workspace / overview</span>
+            <h1>{% if user.role == "client" %}My requests{% else %}All requests{% endif %}</h1>
+            <p>Welcome back, {{ user.display_name }}. {% if user.role == "client" %}Your recordings, from request to review.{% elif user.role == "admin" %}Keep delivery and team access moving smoothly.{% else %}Turn the next client request into a ready dataset.{% endif %}</p>
+        </div>
+        {% if user.role == "client" %}<a class="button primary" href="{% url 'new_request' %}"><span aria-hidden="true">+</span> Create request</a>{% else %}<a class="button primary" href="{% url 'episodes_page' %}#import">Import recordings <span aria-hidden="true">↗</span></a>{% endif %}
+    </section>
+    <section class="dashboard-stats" aria-label="Request overview">
+        {% for label,value,query,description in cards %}
+            <a class="metric-card {% if forloop.counter == 2 %}accent{% endif %}"
+               href="{% url 'home' %}?{{ query }}#requests">
+                <span class="metric-label">{{ label }} <span aria-hidden="true">↗</span></span><strong>{{ value }}</strong><small>{{ description }}</small>
+            </a>
+        {% endfor %}
+    </section>
+    <section class="next-action">
+        <span class="action-symbol" aria-hidden="true">{% if user.role == "client" %}✓{% else %}→{% endif %}</span>
+        <div>
+            <span class="eyebrow">Your next step</span>
+            {% if user.role == "client" %}
+                <h2>{% if stats.delivered %}{{ stats.delivered }} deliver{{ stats.delivered|pluralize:'y,ies' }} ready for your review{% else %}Everything has a place. Start with a request.{% endif %}</h2>
+                <p>{% if stats.delivered %}Review the assigned recordings, then accept or send them back for rework.{% else %}Tell the team what you need, then follow each delivery here.{% endif %}</p>
+            {% else %}
+                <h2>{{ stats.submitted }} ready to start · {{ stats.rejected }} need{{ stats.rejected|pluralize:'s,' }} rework</h2>
+                <p>Start with the nearest deadline. Assign matching good or usable episodes before delivery.</p>
+            {% endif %}
+        </div>
+        {% if user.role == "client" %}<a class="button" href="{% url 'home' %}?status=delivered#requests">Review deliveries</a>{% else %}<a class="button" href="{% url 'home' %}?sort=deadline#requests">View by deadline</a>{% endif %}
+    </section>
+    {% if user.role == "admin" %}
+        <div class="admin-strip"><span><strong>{{ active_users }} active users</strong> across your workspace</span><a href="{% url 'users_page' %}">Manage users &amp; access →</a></div>
+    {% endif %}
+    <section id="requests" class="list-section">
+        <div class="section-head"><div><h2>{{ status_label }}{% if status %} requests{% endif %}</h2><p>{{ meta.total }} result{{ meta.total|pluralize }} · Overview cards show all your accessible requests.</p></div><a href="{% url 'home' %}#requests" class="text-link">Clear filters</a></div>
+        {% include "desk/filter_errors.html" %}
+        <form class="filters surface"
+              method="get"
+              action="{% url 'home' %}#requests">
+            <label class="search-field">Search<input type="search"
+       name="q"
+       value="{{ filter_form.q.value|default:'' }}"
+       maxlength="160"
+       placeholder="{% if user.role == 'client' %}Task or request number{% else %}Task, client or request number{% endif %}"></label>
+            <label>Status<select name="status"><option value="">All statuses</option>{% for value,label in statuses %}<option value="{{ value }}" {% if status == value %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></label>
+            <label>Deadline<select name="attention"><option value="">All deadlines</option><option value="overdue"
+        {% if filter_form.attention.value == 'overdue' %}selected{% endif %}>Overdue</option></select></label>
+            <label>Sort by<select name="sort"><option value="newest">Newest first</option><option value="deadline"
+        {% if filter_form.sort.value == 'deadline' %}selected{% endif %}>Deadline first</option></select></label>
+            <button>Apply filter</button>
+        </form>
+        <div class="table-wrap"><table><caption class="sr-only">Requests matching your filters</caption><thead><tr><th scope="col">Request / task</th>{% if user.role != "client" %}<th scope="col">Client</th>{% endif %}<th scope="col">Delivery progress</th><th scope="col">Status</th><th scope="col">Deadline</th><th scope="col"><span class="sr-only">Action</span></th></tr></thead><tbody>
+            {% for row in rows %}
+                <tr><td><span class="row-kicker">REQUEST #{{ row.pk }}</span><a class="strong" href="{% url 'request_detail' row.pk %}">{{ row.task_name }}</a><small>Submitted {{ row.created_at|date:'d M Y' }}</small></td>
+                    {% if user.role != "client" %}<td>{{ row.client.display_name }}</td>{% endif %}
+                    <td>
+                        <span class="progress-label">{{ row.assigned_count }} / {{ row.episodes_requested }} episodes</span><progress value="{{ row.assigned_count }}"
+          max="{{ row.episodes_requested }}"
+          aria-label="Request {{ row.pk }} assigned episodes">{{ row.assigned_count }} / {{ row.episodes_requested }}</progress>
+                    </td>
+                    <td><span class="status {{ row.status }}">{{ row.get_status_display }}</span></td><td>{{ row.deadline|date:'d M Y' }}{% if row.status != "accepted" %}{% if row.deadline < today %}<small class="overdue">Overdue</small>{% elif row.deadline == today %}<small class="due-today">Due today</small>{% endif %}{% endif %}</td>
+                    <td><a class="row-action"
+   href="{% url 'request_detail' row.pk %}"
+   aria-label="{% if user.role == 'client' and row.status == 'delivered' %}Review{% else %}Open{% endif %} request {{ row.pk }}">{% if user.role == "client" and row.status == "delivered" %}Review{% else %}Open{% endif %} →</a></td></tr>
+{% empty %}<tr><td colspan="6" class="empty"><span class="empty-icon" aria-hidden="true">≡</span><h3>{% if stats.total %}No requests match these filters{% else %}A clear desk. A fresh start.{% endif %}</h3><p>{% if stats.total %}Try another task, request number or status.{% elif user.role == "client" %}Create your first request to get the operations team started.{% else %}New client requests will appear here, ready for fulfilment.{% endif %}</p><a class="button"
+   href="{% if user.role == 'client' and not stats.total %}{% url 'new_request' %}{% else %}{% url 'home' %}#requests{% endif %}">{% if user.role == "client" and not stats.total %}Create request{% else %}Reset filters{% endif %}</a></td></tr>{% endfor %}
+</tbody>
+</table>
+    </div>
+    {% include "desk/pagination.html" %}
+    </section>
+{% endblock %}

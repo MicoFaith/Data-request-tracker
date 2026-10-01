@@ -1,0 +1,700 @@
+/* Preserve the existing brand palette; React adds layout and interaction states. */
+fieldset {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  min-width: 0;
+}
+.user-layout {
+  display: grid;
+  gap: 1.5rem;
+  align-items: start;
+}
+.stats-grid {
+  margin-bottom: 1.5rem;
+}
+fieldset:disabled {
+  opacity: 0.7;
+}
+.main-nav a,
+.button,
+button {
+  gap: 0.45rem;
+  align-items: center;
+}
+.main-nav a {
+  display: inline-flex;
+}
+.main-nav a.active {
+  color: var(--white);
+  border-bottom: 3px solid #b5ead3;
+}
+.metric-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  text-decoration: none;
+}
+.metric-card .muted {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8rem;
+}
+.loading-state {
+  padding: 3rem;
+  max-width: 900px;
+  margin: auto;
+  color: var(--muted);
+}
+.loading-state > svg {
+  vertical-align: middle;
+  margin-right: 0.6rem;
+}
+.skeleton {
+  height: 65px;
+  margin-top: 1.2rem;
+  background: var(--border);
+  border-radius: var(--radius);
+  animation: breathe 1.5s ease-in-out infinite alternate;
+}
+.spin {
+  animation: spin 0.85s linear infinite;
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes breathe {
+  to {
+    opacity: 0.45;
+  }
+}
+.refreshing {
+  font-size: 0.8rem;
+  color: var(--muted);
+  padding: 0.3rem 0;
+  min-height: 1.7rem;
+}
+.notice {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.notice a {
+  display: block;
+  width: 100%;
+}
+.error-link {
+  background: transparent;
+  color: inherit;
+  text-decoration: underline;
+  padding: 0;
+  border: 0;
+  display: block;
+  width: 100%;
+  text-align: left;
+}
+.field-error {
+  color: #a33832;
+  font-size: 0.88rem;
+  margin: 0.4rem 0;
+}
+.form-field small:empty {
+  display: none;
+}
+.request-progress {
+  display: grid;
+  gap: 0.5rem;
+  min-width: 125px;
+}
+progress {
+  appearance: none;
+  width: 100%;
+  height: 7px;
+  border: 0;
+  border-radius: 99px;
+  overflow: hidden;
+  background: var(--border);
+  accent-color: var(--accent);
+}
+progress::-webkit-progress-bar {
+  background: var(--border);
+}
+progress::-webkit-progress-value {
+  background: var(--accent);
+  border-radius: 99px;
+  transition: width 0.25s ease;
+}
+progress::-moz-progress-bar {
+  background: var(--accent);
+  border-radius: 99px;
+}
+.preserve-lines {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.table-wrap {
+  max-width: 100%;
+  overflow: auto;
+}
+.table-wrap th {
+  white-space: nowrap;
+}
+.table-wrap td {
+  overflow-wrap: anywhere;
+}
+.detail-grid > * {
+  min-width: 0;
+}
+.detail-grid,
+.analytics-grid {
+  margin: 1.5rem 0;
+}
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+}
+.actions small {
+  width: 100%;
+}
+.timeline p {
+  margin: 0.25rem 0;
+}
+.import-panel {
+  margin-bottom: 1.5rem;
+}
+.import-panel summary {
+  font-weight: 700;
+  cursor: pointer;
+  padding: 0.4rem 0;
+}
+.import-panel summary span {
+  margin-left: 1rem;
+  font-weight: 400;
+}
+.import-form {
+  margin-top: 1rem;
+  max-width: 550px;
+}
+.analytics-bar {
+  margin: 1.5rem 0;
+}
+.analytics-bar > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+}
+.analytics-table {
+  max-height: 520px;
+}
+.user-record {
+  margin: 1rem 0;
+}
+.user-identity h3,
+.user-identity p {
+  margin: 0.2rem 0;
+}
+.user-identity .status {
+  margin-left: auto;
+}
+.user-controls fieldset {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: end;
+  width: 100%;
+}
+.user-controls .form-field {
+  flex: 1;
+  min-width: 140px;
+}
+.user-controls .form-actions {
+  margin-bottom: 1rem;
+  padding: 0;
+  border: 0;
+}
+.password-toggle {
+  margin-bottom: 1rem;
+}
+.pagination button {
+  min-height: 42px;
+}
+.login-grid {
+  align-items: center;
+}
+button,
+.button,
+.metric-card {
+  transition:
+    transform 0.16s ease,
+    background-color 0.16s ease,
+    box-shadow 0.16s ease;
+}
+button:active:not(:disabled),
+.button:active {
+  transform: translateY(1px);
+}
+@media (max-width: 760px) {
+  .user-layout,
+  .detail-grid,
+  .analytics-grid,
+  .form-layout {
+    grid-template-columns: 1fr;
+  }
+  .heading {
+    align-items: start;
+    gap: 1rem;
+  }
+  .main-nav {
+    overflow: auto;
+  }
+  .next-action {
+    flex-direction: column;
+    align-items: start;
+  }
+  .account {
+    flex-wrap: wrap;
+  }
+  .user-identity {
+    flex-wrap: wrap;
+  }
+  .pagination {
+    flex-wrap: wrap;
+  }
+  .login-grid {
+    grid-template-columns: 1fr;
+  }
+  .login-story {
+    display: none;
+  }
+  .loading-state {
+    padding: 1.5rem;
+  }
+  .import-panel summary span {
+    display: block;
+    margin: 0.5rem 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Analytics keeps the shared teal, mint and ink palette. */
+.profile-controls {
+  border-top: 1px solid var(--border);
+  padding-top: 16px;
+  margin-top: 14px;
+}
+.profile-edit fieldset {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 16px;
+}
+.profile-edit .form-field {
+  flex: 1;
+  min-width: 180px;
+}
+.profile-edit .form-actions {
+  border: 0;
+  padding: 0;
+  margin: 0 0 22px;
+}
+.delete-account {
+  border-top: 1px solid var(--border);
+  padding-top: 14px;
+  margin-bottom: 0;
+}
+.delete-account summary {
+  color: #a33832;
+}
+.delete-account p {
+  font-size: 0.82rem;
+  margin: 12px 0;
+}
+.delete-form {
+  max-width: 460px;
+}
+.delete-form button[type="submit"] {
+  background: #a33832;
+  border-color: #a33832;
+}
+.analytics-dashboard {
+  display: grid;
+  gap: 24px;
+}
+.analytics-metrics {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 18px;
+}
+.analytics-metric {
+  margin: 0;
+  border-top: 3px solid var(--accent);
+}
+.analytics-metric > div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+.analytics-metric svg {
+  color: var(--accent);
+  flex-shrink: 0;
+}
+.analytics-metric > strong {
+  display: block;
+  font-size: clamp(1.8rem, 3vw, 2.4rem);
+  letter-spacing: -1px;
+  margin: 14px 0 5px;
+  line-height: 1.2;
+}
+.analytics-metric p {
+  font-size: 0.75rem;
+  line-height: 1.5;
+}
+.analytics-charts {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  gap: 24px;
+}
+.chart-card {
+  margin: 0;
+  min-width: 0;
+  padding: 26px;
+}
+.chart-card .eyebrow {
+  font-size: 0.67rem;
+  margin-bottom: 7px;
+  letter-spacing: 1.5px;
+}
+.chart-card h2 {
+  font-size: 1.2rem;
+  margin-bottom: 5px;
+}
+.chart-card .section-head {
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: center;
+}
+.chart-note {
+  font-size: 0.78rem;
+  line-height: 1.6;
+}
+.chart-filter {
+  font-size: 0.75rem;
+  color: var(--muted);
+  min-width: 175px;
+}
+.chart-filter select {
+  margin: 4px 0 0;
+  min-height: 40px;
+}
+.volume-chart {
+  display: block;
+  width: 100%;
+  height: auto;
+  min-height: 180px;
+  max-height: 330px;
+  overflow: visible;
+}
+.chart-gridline {
+  stroke: var(--border);
+  stroke-width: 1;
+  stroke-dasharray: 3 5;
+}
+.chart-axis {
+  font-size: 12px;
+  fill: var(--muted);
+  font-family: inherit;
+}
+.chart-column {
+  fill: var(--accent);
+  cursor: pointer;
+  transition: fill 0.15s ease;
+}
+.chart-column:hover,
+.chart-column.selected {
+  fill: var(--ink);
+}
+.chart-column:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 3px;
+}
+.chart-readout {
+  font-size: 0.8rem;
+  min-height: 2rem;
+  margin-top: 20px;
+  color: var(--ink);
+}
+.chart-data {
+  border-top: 1px solid var(--border);
+  padding-top: 12px;
+  margin: 20px 0 0;
+}
+.status-visual {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-top: 20px;
+}
+.status-donut {
+  width: 43%;
+  max-width: 220px;
+  flex-shrink: 0;
+}
+.donut-total {
+  font-size: 32px;
+  font-weight: 700;
+  fill: var(--ink);
+  font-family: inherit;
+}
+.chart-legend {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  flex: 1;
+  min-width: 0;
+}
+.chart-legend li {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.78rem;
+}
+.chart-legend li > span:nth-child(2) {
+  flex: 1;
+}
+.chart-legend small {
+  width: 32px;
+  text-align: right;
+  font-size: 0.7rem;
+}
+.legend-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.task-ranking {
+  list-style: none;
+  padding: 0;
+  margin: 25px 0 0;
+}
+.task-ranking li {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  margin: 24px 0;
+}
+.task-rank {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--muted);
+}
+.task-ranking li > div {
+  flex: 1;
+  min-width: 0;
+}
+.task-bar-label {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 0.86rem;
+  margin-bottom: 8px;
+}
+.task-bar-label strong {
+  overflow-wrap: anywhere;
+}
+.task-bar-label span {
+  font-variant-numeric: tabular-nums;
+  color: var(--accent);
+}
+.task-ranking progress {
+  height: 9px;
+}
+.date-shortcuts {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+.date-shortcuts > span {
+  font-size: 0.78rem;
+  color: var(--muted);
+  margin-right: 6px;
+}
+.date-shortcuts button {
+  font-size: 0.78rem;
+  padding: 7px 13px;
+  min-height: 36px;
+  border-radius: 99px;
+}
+.date-shortcuts button[aria-pressed="true"] {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--white);
+}
+@media (max-width: 1100px) {
+  .analytics-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .analytics-charts {
+    grid-template-columns: 1fr 1fr;
+  }
+  .status-visual {
+    flex-direction: column;
+  }
+  .status-donut {
+    width: 180px;
+  }
+  .chart-legend {
+    width: 100%;
+  }
+}
+@media (max-width: 760px) {
+  .analytics-charts {
+    grid-template-columns: 1fr;
+  }
+  .chart-card {
+    padding: 20px;
+  }
+  .status-visual {
+    flex-direction: row;
+  }
+  .chart-axis {
+    font-size: 14px;
+  }
+  .volume-chart {
+    min-height: 0;
+  }
+  .analytics-metrics {
+    gap: 12px;
+  }
+  .analytics-metric {
+    padding: 18px;
+  }
+  .chart-filter {
+    width: 100%;
+  }
+}
+@media (max-width: 420px) {
+  .status-visual {
+    flex-direction: column;
+  }
+  .analytics-metrics {
+    grid-template-columns: 1fr;
+  }
+  .chart-readout {
+    font-size: 0.75rem;
+  }
+}
+
+.profile-edit fieldset {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: start;
+}
+.profile-edit .form-field {
+  min-width: 0;
+  margin: 0;
+}
+.profile-edit .form-actions {
+  grid-column: 1/-1;
+  margin: 0;
+}
+@media (max-width: 760px) {
+  .profile-edit fieldset {
+    grid-template-columns: 1fr;
+  }
+}
+/* Activity inbox uses the existing workspace palette. */
+.notification-badge {
+  background: var(--accent);
+  color: white;
+  border-radius: 20px;
+  padding: 2px 7px;
+  font-size: 12px;
+}
+.notification-settings {
+  padding: 24px;
+  margin-bottom: 28px;
+}
+.notification-preference-form {
+  max-width: 720px;
+}
+.notification-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+.notification-toolbar h2 {
+  margin-right: auto;
+}
+.notification-toolbar label {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.notification-toolbar input,
+.notification-preference-form input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  accent-color: var(--accent);
+}
+.notification-list {
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 12px;
+}
+.notification-item {
+  padding: 22px;
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  justify-content: space-between;
+  border-left: 4px solid transparent;
+}
+.notification-item.is-unread {
+  border-left-color: var(--accent);
+}
+.notification-item h3 {
+  margin: 5px 0;
+}
+.notification-item p {
+  overflow-wrap: anywhere;
+}
+.notification-item time {
+  color: var(--muted);
+  font-size: 13px;
+}
+.notification-item button {
+  flex-shrink: 0;
+}
+@media (max-width: 640px) {
+  .notification-item {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}

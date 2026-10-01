@@ -1,0 +1,55 @@
+# Standalone public-demo stack: do not merge with the local compose.yaml.
+services:
+  web:
+    build: .
+    environment: &environment
+      DJANGO_SETTINGS_MODULE: config.production
+      DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY:?Set a random secret in .env.public}
+      DJANGO_ALLOWED_HOSTS: ${APP_DOMAIN:?Set the public demo domain}
+      SEED_DEMO: "1"
+      NOTIFICATION_EMAIL_ENABLED: ${NOTIFICATION_EMAIL_ENABLED:-0}
+      EMAIL_PROVIDER: ${EMAIL_PROVIDER:-smtp}
+      BREVO_API_KEY: ${BREVO_API_KEY:-}
+      NOTIFICATION_EMAIL_RECIPIENTS: ${NOTIFICATION_EMAIL_RECIPIENTS:-}
+      EMAIL_HOST: ${EMAIL_HOST:-}
+      EMAIL_PORT: ${EMAIL_PORT:-587}
+      EMAIL_HOST_USER: ${EMAIL_HOST_USER:-}
+      EMAIL_HOST_PASSWORD: ${EMAIL_HOST_PASSWORD:-}
+      EMAIL_USE_TLS: ${EMAIL_USE_TLS:-1}
+      EMAIL_USE_SSL: ${EMAIL_USE_SSL:-0}
+      DEFAULT_FROM_EMAIL: ${DEFAULT_FROM_EMAIL:-}
+      APP_BASE_URL: https://${APP_DOMAIN:?Set the public demo domain}
+    expose:
+      - "8000"
+    volumes:
+      - public_data:/app/data
+    init: true
+    restart: unless-stopped
+  notifications:
+    build: .
+    command: ["python", "manage.py", "deliver_notifications", "--watch"]
+    environment: *environment
+    volumes:
+      - public_data:/app/data
+    depends_on:
+      - web
+    init: true
+    restart: unless-stopped
+  proxy:
+    image: caddy:2
+    environment:
+      APP_DOMAIN: ${APP_DOMAIN:?Set the public demo domain}
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - certificates:/data
+      - caddy_config:/config
+    depends_on:
+      - web
+    restart: unless-stopped
+volumes:
+  public_data:
+  certificates:
+  caddy_config:

@@ -1,0 +1,37 @@
+services:
+  web:
+    build: .
+    ports:
+      - "127.0.0.1:8000:8000"
+    environment: &environment
+      DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY:-local-demo-only-replace-before-public-deployment}
+      DJANGO_ALLOWED_HOSTS: ${DJANGO_ALLOWED_HOSTS:-localhost,127.0.0.1}
+      COOKIE_SECURE: ${COOKIE_SECURE:-0}
+      NOTIFICATION_EMAIL_ENABLED: ${NOTIFICATION_EMAIL_ENABLED:-0}
+      EMAIL_PROVIDER: ${EMAIL_PROVIDER:-smtp}
+      BREVO_API_KEY: ${BREVO_API_KEY:-}
+      DATABASE_URL: ${DATABASE_URL:-}
+      NOTIFICATION_EMAIL_RECIPIENTS: ${NOTIFICATION_EMAIL_RECIPIENTS:-}
+      EMAIL_HOST: ${EMAIL_HOST:-}
+      EMAIL_PORT: ${EMAIL_PORT:-587}
+      EMAIL_HOST_USER: ${EMAIL_HOST_USER:-}
+      EMAIL_HOST_PASSWORD: ${EMAIL_HOST_PASSWORD:-}
+      EMAIL_USE_TLS: ${EMAIL_USE_TLS:-1}
+      EMAIL_USE_SSL: ${EMAIL_USE_SSL:-0}
+      DEFAULT_FROM_EMAIL: ${DEFAULT_FROM_EMAIL:-}
+      APP_BASE_URL: ${APP_BASE_URL:-http://127.0.0.1:8000}
+    volumes:
+      - desk_data:/app/data
+    init: true
+  notifications:
+    build: .
+    command: ["python", "manage.py", "deliver_notifications", "--watch"]
+    environment: *environment
+    volumes:
+      - desk_data:/app/data
+    depends_on:
+      - web
+    init: true
+    restart: unless-stopped
+volumes:
+  desk_data:

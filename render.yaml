@@ -1,0 +1,26 @@
+# Free web hosting; supply an external free Neon PostgreSQL connection string.
+services:
+  - type: web
+    name: data-request-tracker
+    runtime: docker
+    plan: free
+    region: frankfurt
+    branch: main
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /login/
+    autoDeployTrigger: checksPass
+    envVars:
+      - key: DJANGO_SETTINGS_MODULE
+        value: config.render
+      - key: DJANGO_SECRET_KEY
+        generateValue: true
+      - key: DATABASE_URL
+        sync: false
+      - key: EMAIL_PROVIDER
+        value: brevo
+      - key: RUN_NOTIFICATION_WORKER
+        value: "1"
+      - key: SEED_DEMO
+        value: "1"
+      - key: NOTIFICATION_EMAIL_ENABLED
+        value: "0"
