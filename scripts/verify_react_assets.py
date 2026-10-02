@@ -1,9 +1,10 @@
 """HTTP checks for the built React assets; not a visual browser test."""
 
 import re
+import os
 import urllib.request
 
-BASE = "http://127.0.0.1:8000"
+BASE = os.environ.get("DESK_BASE_URL", "http://127.0.0.1:8000").rstrip("/")
 
 
 def fetch(path):

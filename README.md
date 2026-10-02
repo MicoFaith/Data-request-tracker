@@ -1,5 +1,7 @@
 # Dataset Request Desk
 
+**Live demo:** https://data-request-tracker.onrender.com — use the supplied accounts below. Free hosting can take a little longer to wake after inactivity.
+
 [![Tests](https://github.com/MicoFaith/Data-request-tracker/actions/workflows/test.yml/badge.svg)](https://github.com/MicoFaith/Data-request-tracker/actions/workflows/test.yml)
 
 A Python internal platform for robotics dataset requests, episode assignment and client delivery review. Built for the supplied Neotix technical test. The backend uses Django 5.2 with PostgreSQL for free public hosting or SQLite for the local demo, and committed Django migrations. The primary UI uses React, React Router, TanStack Query and Motion, built with Vite. It preserves the original teal, mint and dark-header palette. Django templates remain a functional fallback without JavaScript; HTMX loads only when the React build is absent.
@@ -160,7 +162,7 @@ Verification passed locally and in GitHub Actions: 110 backend tests on SQLite, 
 
 The backend automated suite includes cross-client/role denials, active-session role changes, CSRF, valid/invalid transitions, audit rollback, N−1/N/N+1 delivery, unique/concurrent assignments, messy import/idempotency, SQL median/boundaries, pagination, logging/outage behavior, notification scoping, opt-in email, retry/lease recovery and client/operator templates. Test password hashing is intentionally fast inside test classes only; application seeds use Django's normal password hasher.
 
-The deployment stretch is selected: free public HTTPS configuration is prepared, but a live hosting URL is still pending. GitHub Actions CI runs on pushes and pull requests. Full visual browser QA remains outstanding. Seed CSV and account data are included in `seed/`.
+The deployment stretch is live on Render Free with Neon Free PostgreSQL. The public HTTPS walkthrough passed for all five supplied users, request delivery/rework, imports, analytics, full admin profile editing/deletion, notification isolation/read state and React assets. GitHub Actions CI runs on pushes and pull requests. Full visual browser QA remains outstanding. Seed CSV and account data are included in `seed/`.
 
 AI tooling disclosure, as requested by the brief: Codex/ChatGPT helped implement the application, tests and documentation, and ran automated and HTTP checks. The published repository starts from a consolidated snapshot; its commit timestamps do not represent active development hours.
 
@@ -204,6 +206,8 @@ Emails contain a secure link back to the inbox rather than private activity deta
 ### Test as a developer
 
 Run `python scripts/test_all.py` for the full Docker suite, or `python manage.py test desk.test_notifications desk.test_deployment --noinput` for focused backend checks. These tests do not send external mail. They cover recipient scoping, ownership, role changes, CSRF, read idempotency, pagination, atomic rollback, opt-in validation, address changes, cancellations, retry limits and interrupted-worker recovery. With the local demo running, `python scripts/verify_notifications.py` checks notifications through real HTTP sessions and intentionally creates one request. Real SMTP credentials, mailbox receipt and visual browser review remain external release checks.
+
+The HTTP verification scripts also support hosted demos. Set `DESK_BASE_URL=https://data-request-tracker.onrender.com` before running them; they create synthetic test records and must be used only against an authorized demo environment. They send HTTPS origin/referrer headers for CSRF checks.
 
 The notification API is authenticated and CSRF-protected for writes:
 
@@ -252,17 +256,17 @@ Real-time updates, export jobs, video delivery, email invitations and password r
 
 The included `render.yaml` uses **Render Free** for the app and an external **Neon Free PostgreSQL** database for persistent records. There is no paid disk or paid service in the Blueprint. Render provides the HTTPS subdomain and generates the application secret. The web server and email worker run together under `scripts/serve.py`; if either exits unexpectedly, the supervisor stops the other and exits for the platform to restart the service.
 
-1. Create a [Neon Free project](https://console.neon.tech/) in a region near Frankfurt. Copy its PostgreSQL connection string, including `sslmode=require`, from **Connect**. Keep it secret; the pooled URL is supported.
+1. Create a [Neon Free project](https://console.neon.tech/) in Ohio to match the web service. Copy its PostgreSQL connection string, including `sslmode=require`, from **Connect**. Keep it secret; the pooled URL is supported.
 2. Open [Deploy on Render](https://render.com/deploy?repo=https://github.com/MicoFaith/Data-request-tracker), connect your GitHub account and choose the free service from the Blueprint. Paste the Neon connection string into the prompted `DATABASE_URL` secret. Keep both accounts on their free plans.
 3. After deployment completes, use the actual HTTPS address shown by Render. No custom domain is required. The application reads `RENDER_EXTERNAL_HOSTNAME`; migrations and one-time seed setup run at startup. GitHub CI gates subsequent automatic deployments.
 4. Configure the Brevo HTTPS email settings and approved recipients described above when ready. Email remains off until configured. Restart/redeploy after environment changes. Store secrets in Render, not GitHub source files.
 5. Repeat the browser demo and mailbox checks. Verify that a restart preserves accounts and requests. The `/login/` route is the platform health probe; the authenticated `/health` endpoint remains available for application checks.
 
-Render Free sleeps after 15 minutes without incoming traffic, so the first visit can be slow. Neon also scales down when idle; its storage/compute limits apply. Database records survive app restarts because they are stored separately. Email work pauses while the app is asleep. See [Render Free limits](https://render.com/docs/free), [Neon plans](https://neon.com/pricing) and [Blueprint settings](https://render.com/docs/blueprint-spec). Use PostgreSQL `pg_dump` backups and keep restricted off-platform copies. Live deployment is pending access to the free hosting accounts and the database connection secret.
+Render Free sleeps after 15 minutes without incoming traffic, so the first visit can be slow. Neon also scales down when idle; its storage/compute limits apply. Database records survive app restarts because they are stored separately. Email work pauses while the app is asleep. See [Render Free limits](https://render.com/docs/free), [Neon plans](https://neon.com/pricing) and [Blueprint settings](https://render.com/docs/blueprint-spec). Use PostgreSQL `pg_dump` backups and keep restricted off-platform copies. The current deployment uses the existing `data-request-robotics` Neon project in Ohio. Email delivery remains disabled until a Brevo key, verified sender and approved recipients are configured.
 
 ### Docker server alternative
 
-Hosting and a domain are still needed. No public deployment URL or remote certificate has been verified. The included option uses a Docker server with a dedicated domain, persistent SQLite storage and a Caddy HTTPS proxy.
+For self-managed hosting instead of the live Render deployment, the included alternative uses a Docker server with a dedicated domain, persistent SQLite storage and a Caddy HTTPS proxy. Provision the server and domain before using this option.
 
 1. Put the repository on the server and install Docker Compose.
 2. Point the domain's DNS A record at the server. Add AAAA only if IPv6 is configured. Allow inbound TCP ports 80 and 443.

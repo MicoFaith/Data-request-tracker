@@ -4,7 +4,7 @@ services:
     name: data-request-tracker
     runtime: docker
     plan: free
-    region: frankfurt
+    region: ohio
     branch: main
     dockerfilePath: ./Dockerfile
     healthCheckPath: /login/

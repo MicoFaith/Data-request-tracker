@@ -7,12 +7,13 @@ from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 
 import http.cookiejar
+import os
 import json
 import urllib.error
 import urllib.parse
 import urllib.request
 
-BASE = "http://127.0.0.1:8000"
+BASE = os.environ.get("DESK_BASE_URL", "http://127.0.0.1:8000").rstrip("/")
 
 
 class Session:
@@ -21,6 +22,7 @@ class Session:
         self.opener = urllib.request.build_opener(
             urllib.request.HTTPCookieProcessor(self.cookies)
         )
+        self.opener.addheaders = [("Referer", BASE + "/"), ("Origin", BASE)]
         self.opener.open(BASE + "/login/").read()
         self.call("/api/login/", {"email": email, "password": password})
 
